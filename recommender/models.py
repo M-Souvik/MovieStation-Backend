@@ -10,7 +10,8 @@ class MoviesModel(models.Model):
     genres=models.JSONField(default=list, blank=True)
     summary=models.TextField(default='')
     movies_id=models.CharField(max_length=1000)
-    movie_banner_desktop=CloudinaryField('image')
+    movie_poster=CloudinaryField('Poster')
+    movie_banner_desktop=CloudinaryField('Banner Poster')
 
     def __str__(self):
         return f'{self.movies_name}'

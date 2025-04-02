@@ -71,7 +71,7 @@ movies['tags']=movies['overview']+movies['genres']+movies['cast']+movies['keywor
 
 movies.head()
 
-newMoviesData=movies[['id','movie_id','movie_name','tags']]
+newMoviesData=movies[['id','movie_id','movie_name','tags','genres']]
 
 newMoviesData.head()
 
@@ -111,33 +111,47 @@ similarity=cosine_similarity(vectors)
 
 similarity[1]
 
-def recommend(movie):
-    # Find all movies that contain the input as a substring (case-insensitive)
-    matched_movies = newMoviesData[newMoviesData['movie_name'].str.contains(movie, case=False, na=False)]
-    
-    if matched_movies.empty:
-        print("No matching movies found.")
-        return
+def recommend(movie=None, preferred_genres=None):
+    recommended_movies = []
 
-    # Select the first matched movie (or modify logic to handle multiple)
-    movies_index = matched_movies.index[0]
-    
-    # Compute distances
-    distances = similarity[movies_index]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[0:5]
-    movies_name=[]
-    # Print recommended movies
-    for i in movies_list:
-        movies_name.append(newMoviesData.iloc[i[0]].id)
-        print(newMoviesData.iloc[i[0]].id)
-        # return newMoviesData.iloc[i[0]].movie_name
-    
-    return movies_name
+    # If the user provides a movie name
+    if movie:
+        matched_movies = newMoviesData[newMoviesData['movie_name'].str.contains(movie, case=False, na=False)]
+        
+        if matched_movies.empty:
+            print("No matching movies found.")
+            return []
 
-newMoviesData.head()
+        # Select the first matched movie (or modify logic to handle multiple)
+        movies_index = matched_movies.index[0]
+        
+        # Compute distances and get similar movies
+        distances = similarity[movies_index]
+        movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[0:10]  # Get top 10 recommendations
+        
+        recommended_movies = [newMoviesData.iloc[i[0]] for i in movies_list]
 
+    # If user provides genres only
+    if preferred_genres:
+        preferred_genres = [g.lower() for g in preferred_genres]
 
-recommend('action')
+        # Filter movies that match user genres
+        genre_filtered_movies = movies[movies['genres'].apply(lambda g: any(genre in preferred_genres for genre in g))]
+        
+        if not recommended_movies:
+            # If no movie name was provided, return top movies from this genre
+            recommended_movies = genre_filtered_movies.sample(n=min(5, len(genre_filtered_movies))).to_dict(orient="records")
+        else:
+            # Filter recommended movies based on genres
+            recommended_movies = [movie for movie in recommended_movies if any(g in preferred_genres for g in movies['genres'][movie.name])]
+
+    # If no recommendations found, return top movies from dataset
+    if not recommended_movies:
+        recommended_movies = newMoviesData.sample(n=5).to_dict(orient="records")
+
+    # Return the list of movie IDs
+    return [movie['id'] for movie in recommended_movies]
+
 
 
 
