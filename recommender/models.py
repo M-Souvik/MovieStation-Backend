@@ -13,6 +13,7 @@ class MoviesModel(models.Model):
     movie_poster=CloudinaryField('Poster')
     movie_banner_desktop=CloudinaryField('Banner Poster')
     runtime=models.CharField(max_length=50, default='')
+    ratings=models.CharField(max_length=10, default=0)
 
     def __str__(self):
         return f'{self.movies_name}-{self.movies_id}'
