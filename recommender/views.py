@@ -101,8 +101,9 @@ def get_all_movies(request):
             "description": movie.summary,
             "movie_link": movie.movies_link,
             "genres": movie.genres,
+            "runtime":movie.runtime,
             "movie_id":movie.movies_id,
-            "poster":str(movie.movie_poster),
+            "poster":f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_poster}.jpg",
             "banner_poster": str(movie.movie_banner_desktop),  # Convert CloudinaryResource to string
         }
         movies_list.append(movie_data)

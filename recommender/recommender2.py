@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-movies = pd.read_csv('movieDataset2.csv', usecols=lambda column: not column.startswith('Unnamed'))
+movies = pd.read_csv('movieDataset2.csv', encoding="latin1", usecols=lambda column: not column.startswith('Unnamed'))
 
 movies.head()
 
