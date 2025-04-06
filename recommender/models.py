@@ -16,6 +16,8 @@ class MoviesModel(models.Model):
     ratings=models.CharField(max_length=10, default=0)
     release_year=models.CharField(max_length=10, default='')
     director=models.CharField(max_length=100, default='None')
+    review=models.TextField(max_length=1000, default='')
+    viewed=models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.movies_name}-{self.movies_id}'
