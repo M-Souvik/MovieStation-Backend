@@ -16,7 +16,7 @@ Including another URLconf
 """
 # from django.contrib import admin
 from django.urls import path
-from .views import get_movie_recommendations, get_all_movies, get_movies_by_id, movies_by_genres
+from .views import get_movie_recommendations, get_all_movies, get_movies_by_id, movies_by_genres, register, add_user_preference
 
 
 urlpatterns = [
@@ -25,4 +25,6 @@ urlpatterns = [
     path('recommend/genres', movies_by_genres, name='movies_by_genres'),
     path('movie/<str:movie_id>/', get_movies_by_id , name='get_movie_by_id'),
     path('movies/', get_all_movies , name='get_all_movies'),
+    path('preference/', add_user_preference, name='add_user_preference'),
+    path('register/', register, name='register')
 ]
