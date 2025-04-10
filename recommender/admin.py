@@ -3,7 +3,9 @@ from .models import MoviesModel, UserPreference
 
 class UserPreferenceAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'preference')  # Show id, user, and preference columns
+class MovieAdmin(admin.ModelAdmin):
+    list_display = ('movies_name', 'id', 'movies_id', 'release_year')  # Show id, user, and preference columns
 
 # Register your models here.
-admin.site.register(MoviesModel)
+admin.site.register(MoviesModel, MovieAdmin)
 admin.site.register(UserPreference, UserPreferenceAdmin)

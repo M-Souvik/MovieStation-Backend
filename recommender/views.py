@@ -124,9 +124,10 @@ def get_all_movies(request):
 @csrf_exempt
 def register(request):
     if request.method == 'POST':
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        email = request.POST.get("email")
+        data = json.loads(request.body)
+        username = data.get("username")
+        password = data.get("password")
+        email = data.get("email")
 
         if not username or not password or not email:
             return JsonResponse({"error": "All fields are required."}, status=400)
@@ -148,8 +149,10 @@ def register(request):
 @csrf_exempt
 def user_login(request):
     if request.method == 'POST':
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+        data = json.loads(request.body)
+        email = data.get("email")
+        password = data.get("password")
+
 
         if not email or not password:
             return JsonResponse({"error": "Email and password are required."}, status=400)
