@@ -171,7 +171,7 @@ def user_login(request):
             if user.check_password(password):  # Check the password
                 refresh = RefreshToken.for_user(user)
                 if user:
-                    preferences=UserPreference.objects.get(id=user.id)
+                    preferences=UserPreference.objects.get(user_id=user.id)
                     print(preferences)
                     # preferences_data = {
                     #     "id": preferences.id,
