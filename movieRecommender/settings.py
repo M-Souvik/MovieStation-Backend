@@ -71,6 +71,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://project-movie-station-frontend.vercel.app"
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
