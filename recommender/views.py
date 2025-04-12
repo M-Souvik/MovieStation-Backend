@@ -71,9 +71,10 @@ def movies_by_genres(request):
                 "movie_id": movie.movies_id,
                 "movie_link": movie.movies_link,
                 "genres": movie.genres,
+                "runtime":movie.runtime,
                 "poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_poster}.jpg",
                 # "poster": str(movie.movie_poster),
-                "banner_poster": str(movie.movie_banner_desktop),
+                "banner_poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_banner_desktop}.jpg",
             }
             movies_list.append(movie_data)
 
@@ -132,8 +133,8 @@ def register(request):
         if not username or not password or not email:
             return JsonResponse({"error": "All fields are required."}, status=400)
 
-        if User.objects.filter(username=username).exists():
-            return JsonResponse({"error": "Username already exists."}, status=400)
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already exists."}, status=400)
 
         user = User(
             username=username,
@@ -142,7 +143,13 @@ def register(request):
         )
         user.save()
 
-        return JsonResponse({"message": "User registered successfully."}, status=201)
+        savedUser = {
+            "id": user.id,
+            "username": user.username,
+            # "email"
+        }
+
+        return JsonResponse({"message": "User registered successfully.", "user": savedUser}, status=201)
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
@@ -161,6 +168,14 @@ def user_login(request):
             user = User.objects.get(email=email)  # Get user by email
             if user.check_password(password):  # Check the password
                 refresh = RefreshToken.for_user(user)
+                if user:
+                    preferences=UserPreference.objects.get(id=user.id)
+                    print(preferences)
+                    # preferences_data = {
+                    #     "id": preferences.id,
+                    #     "preference": preferences.preference,  # Assuming preference is already serializable
+                    # }
+
                 return JsonResponse({
                     "message": "Login successful.",
                     'access': str(refresh.access_token),
@@ -168,7 +183,8 @@ def user_login(request):
                     'user': {
                         "id":user.id,
                         "username":user.username,
-                        "email":user.email
+                        "email":user.email,
+                        "preferences":preferences.preference
                     }
                 }, status=200)
             else:
