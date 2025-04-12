@@ -116,7 +116,9 @@ def get_all_movies(request):
             "runtime": movie.runtime,
             "movie_id": movie.movies_id,
             "poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_poster}.jpg",
-            "banner_poster": str(movie.movie_banner_desktop),  # Convert CloudinaryResource to string
+            # "banner_poster": str(movie.movie_banner_desktop),  # Convert CloudinaryResource to string
+            "banner_poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_banner_desktop}.jpg",
+
         }
         movies_list.append(movie_data)
 
