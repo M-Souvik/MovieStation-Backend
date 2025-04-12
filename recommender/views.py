@@ -10,7 +10,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+# from django.contrib.auth import authenticate
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+
+
 import json
 
 env = Env()
@@ -82,10 +87,10 @@ def movies_by_genres(request):
 
 
 # @login_required
-def get_movies_by_id(request, movie_id):
-    if not request.user.is_authenticated:  # Check if the user is not logged in
-        return JsonResponse({"error": "Unauthorized"}, status=401)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_movies_by_id(request, movie_id):
     movie = get_object_or_404(MoviesModel, movies_id=movie_id)
     
     # Serialize the movie instance to a dictionary
