@@ -101,6 +101,10 @@ def get_movies_by_id(request, movie_id):
         "movie_link": movie.movies_link,
         "movie_id": movie.movies_id,
         "genres": movie.genres,
+        "runtime":movie.runtime,
+        "release":movie.release_year,
+        "director":movie.director,
+        "reviews":movie.user_reviews,
         "poster": str(movie.movie_poster),
         "banner_poster": str(movie.movie_banner_desktop),  # Convert CloudinaryResource to string if necessary
     }

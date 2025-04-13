@@ -84,7 +84,7 @@ def recommend(movie=None, preferred_genres=None):
         
         if not recommended_movies:
             # If no movie name was provided, return top movies from this genre
-            recommended_movies = genre_filtered_movies.sample(n=min(5, len(genre_filtered_movies))).to_dict(orient="records")
+            recommended_movies = genre_filtered_movies.sample(n=min(10, len(genre_filtered_movies))).to_dict(orient="records")
         else:
             # Filter recommended movies based on genres
             recommended_movies = [
@@ -95,7 +95,7 @@ def recommend(movie=None, preferred_genres=None):
 
     # If no recommendations found, return top movies from dataset
     if not recommended_movies:
-        recommended_movies = newData.sample(n=5).to_dict(orient="records")
+        recommended_movies = newData.sample(n=10).to_dict(orient="records")
 
     # Return the list of movie names
     return [movie['movie_id'] for movie in recommended_movies]
