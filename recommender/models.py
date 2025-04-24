@@ -32,3 +32,11 @@ class UserPreference(models.Model):
 
     def __str__(self):
         return f'{self.user}-{self.preference}'
+    
+class userReviews(models.Model):
+        user = models.ForeignKey(User, on_delete=models.CASCADE, default='')
+        movie_id=models.ForeignKey(MoviesModel, on_delete=models.CASCADE, default='')
+        review=models.TextField(max_length=1000, default='None')
+
+        def __str__(self):
+            return f'{self.user}-{self.movie_id}'

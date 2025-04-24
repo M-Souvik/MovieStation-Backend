@@ -2,7 +2,7 @@
 from .recommender2 import recommend
 import requests
 from django.http import JsonResponse
-from .models import MoviesModel, UserPreference
+from .models import MoviesModel, UserPreference, userReviews
 from environ import Env
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -45,7 +45,9 @@ def get_movie_recommendations(request, movie_name=None):
             "movie_id": movie.movies_id,
             "genres": movie.genres,
             "runtime":movie.runtime,
-            "poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_banner_desktop}.jpg"
+            "poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_poster}.jpg",
+                # "poster": str(movie.movie_poster),
+            "banner_poster": f"https://res.cloudinary.com/{env('CLOUDINARY_CLOUD_NAME')}/image/upload/v1743015824/{movie.movie_banner_desktop}.jpg",
         }
         movies.append(movie_data)
 
@@ -56,8 +58,8 @@ def get_movie_recommendations(request, movie_name=None):
 def movies_by_genres(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-
         user_genres = data.get("genres")
+        print(user_genres)
         recommended_movie_ids = recommend(preferred_genres=user_genres)
         
         if not recommended_movie_ids:  # If no recommendations found
@@ -92,6 +94,18 @@ def movies_by_genres(request):
 @permission_classes([IsAuthenticated])
 def get_movies_by_id(request, movie_id):
     movie = get_object_or_404(MoviesModel, movies_id=movie_id)
+
+    # Get all reviews for this movie instead of a single review
+    reviews_queryset = userReviews.objects.filter(movie_id=movie.id)
+
+    reviews = []
+
+    for user_review in reviews_queryset:
+        _review = {
+            "user": user_review.user.username,  # Use username instead of user object
+            "review": user_review.review
+        }
+        reviews.append(_review)
     
     # Serialize the movie instance to a dictionary
     movie_data = {
@@ -101,10 +115,10 @@ def get_movies_by_id(request, movie_id):
         "movie_link": movie.movies_link,
         "movie_id": movie.movies_id,
         "genres": movie.genres,
-        "runtime":movie.runtime,
-        "release":movie.release_year,
-        "director":movie.director,
-        "reviews":movie.user_reviews,
+        "runtime": movie.runtime,
+        "release": movie.release_year,
+        "director": movie.director,
+        "reviews": reviews,
         "poster": str(movie.movie_poster),
         "banner_poster": str(movie.movie_banner_desktop),  # Convert CloudinaryResource to string if necessary
     }
@@ -163,6 +177,47 @@ def register(request):
         return JsonResponse({"message": "User registered successfully.", "user": savedUser}, status=201)
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@csrf_exempt
+def add_reviews(request):
+    if request.method=='POST':
+        data=json.loads(request.body)
+        review=data.get('review')
+        user_id=data.get('user_id')
+        movie_id=data.get('movie_id')
+
+        # Get the User and Movie objects
+        try:
+            user = User.objects.get(id=user_id)
+            movie = MoviesModel.objects.get(id=movie_id)
+
+            if userReviews.objects.filter(user=user, movie_id=movie).exists():
+                return JsonResponse(
+                    {"error": "User has already reviewed this movie."},
+                    status=400
+                )
+            
+            newReview=userReviews(
+                user=user,
+                movie_id=movie,
+                review=review
+            )
+            newReview.save()
+
+            savedReview = {
+                "user": user.username,
+                "movie_id": movie.movies_id,
+                "review": review 
+            }
+
+            return JsonResponse({"message": "Review added successfully.", "review": savedReview}, status=201)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found."}, status=404)
+        except MoviesModel.DoesNotExist:
+            return JsonResponse({"error": "Movie not found."}, status=404)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+
 
 @csrf_exempt
 def user_login(request):
